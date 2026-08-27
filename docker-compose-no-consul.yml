@@ -1,0 +1,10 @@
+services:
+  service-a:
+    image: dev-612-service-a
+    ports:
+      - "5002:5000"
+    depends_on:
+      - service-b
+
+  service-b:
+    image: dev-612-service-b

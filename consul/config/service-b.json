@@ -1,0 +1,9 @@
+{
+    "service": {
+      "name": "service-b",
+      "port": 5000,
+      "connect": {
+        "sidecar_service": {}
+      }
+    }
+  }

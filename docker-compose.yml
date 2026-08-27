@@ -1,0 +1,28 @@
+services:
+  consul:
+    image: hashicorp/consul:1.20
+    ports:
+      - "8500:8500"
+      - "8503:8503"
+    volumes:
+      - ./consul/config:/consul/config
+    command: consul agent -config-file=/consul/config/consul.hcl -config-dir=/consul/config
+
+  service-b:
+    image: dev-612-service-b
+    depends_on:
+      - consul
+    ports:
+      - "5001:5000"
+      - "21000:21000"
+      - "19000:19000"
+
+  envoy-b:
+    image: envoyproxy/envoy:v1.32-latest
+    depends_on:
+      - consul
+      - service-b
+    network_mode: "service:service-b"
+    volumes:
+      - ./envoy/envoy-b-bootstrap.json:/etc/envoy/bootstrap.json:ro
+    command: envoy -c /etc/envoy/bootstrap.json
