@@ -223,3 +223,132 @@ Client ── TLS ──► Envoy Sidecar :21000
 Deploy test application with and without Consul Connect
 
 This repository contains the configuration and test application used to demonstrate both deployment modes.
+
+# Recommendation: When to Use a Service Mesh
+
+## 1. Overview
+
+A service mesh is a dedicated infrastructure layer that manages communication between services. Consul Connect uses sidecar proxies such as Envoy to provide features including mutual TLS (mTLS), service identity, service discovery, traffic management, and access control.
+
+A service mesh should be introduced when these capabilities provide enough operational or security value to justify the additional latency, CPU, memory, and configuration overhead.
+
+## 2. When a Service Mesh Is Recommended
+
+### 2.1 Multiple Microservices
+
+A service mesh is most useful in applications containing multiple independently deployed services.
+
+As the number of services increases, managing service-to-service communication, security, discovery, and access policies manually becomes more difficult.
+
+A service mesh provides a centralized approach to these concerns without requiring every application to implement them independently.
+
+### 2.2 Strong Service-to-Service Security Requirements
+
+A service mesh is recommended when internal service communication requires strong security guarantees.
+
+Consul Connect provides:
+
+- Mutual TLS (mTLS)
+- Encrypted service-to-service traffic
+- Service identity
+- Certificate management
+- Identity-based access control
+
+This is particularly useful when services communicate across different hosts, networks, or environments.
+
+### 2.3 Zero-Trust Architecture
+
+A service mesh can be useful when an organization follows a zero-trust security model.
+
+Instead of trusting services based only on network location, communication can be authenticated using service identities and controlled through explicit access policies.
+
+This allows organizations to define which services are permitted to communicate with one another.
+
+### 2.4 Complex Traffic Management
+
+A service mesh is useful when applications require advanced traffic-management capabilities such as:
+
+- Service discovery
+- Load balancing
+- Traffic routing
+- Service failover
+- Health-aware routing
+- Controlled communication between services
+
+These capabilities become increasingly valuable as an application grows in complexity.
+
+### 2.5 Observability Requirements
+
+A service mesh can provide a consistent layer for monitoring service-to-service communication.
+
+This can help teams understand:
+
+- Request latency
+- Service communication patterns
+- Connection failures
+- Traffic behavior
+- Service dependencies
+
+This is useful for troubleshooting distributed applications where communication occurs across many services.
+
+## 3. When a Service Mesh May Not Be Necessary
+
+A service mesh may be unnecessary for small or simple applications.
+
+Examples include:
+
+- A single-service application
+- A small application with only a few services
+- Local development environments
+- Applications with very low traffic
+- Systems where simple networking is sufficient
+- Applications with strict resource constraints
+
+In these situations, the operational complexity and resource overhead of a service mesh may outweigh its benefits.
+
+## 4. Performance Considerations
+
+The performance benchmark performed for this project showed that Consul Connect + Envoy introduced measurable overhead compared with direct HTTP communication.
+
+The observed steady-state latency was:
+
+- Direct HTTP: approximately 3.21 ms
+- Consul Connect + Envoy TLS: approximately 4.96 ms
+- Additional latency: approximately 1.75 ms/request
+
+The Envoy sidecar also consumed additional resources, with approximately 1.54% average CPU and 23.06 MiB memory observed during the primary resource measurement.
+
+These results demonstrate that a service mesh introduces overhead. However, the overhead should be evaluated against the security, reliability, and operational benefits required by the application.
+
+## 5. Recommendation
+
+A service mesh is recommended when an application has enough service-to-service communication complexity that centralized security, service discovery, traffic management, and observability provide significant value.
+
+For small applications, the additional complexity may not be justified.
+
+For larger microservice-based systems, especially those requiring encrypted communication, identity-based access control, zero-trust networking, or advanced traffic management, a service mesh can provide substantial operational and security benefits.
+
+## 6. Decision Guidelines
+
+| Application Scenario | Recommendation |
+|---|---|
+| Single-service application | Generally do not use a service mesh |
+| Small application with a few services | Usually unnecessary |
+| Growing microservice architecture | Consider introducing a service mesh |
+| Many independently deployed services | Recommended |
+| Strong service-to-service security requirements | Recommended |
+| Zero-trust architecture | Recommended |
+| Advanced traffic management requirements | Recommended |
+| Cross-host or distributed service communication | Consider/Recommended |
+| Very resource-constrained environment | Evaluate carefully |
+| High-performance application with extremely low latency requirements | Benchmark before adoption |
+
+## 7. Conclusion
+
+A service mesh should not be introduced simply because an application uses microservices. The decision should be based on the application's security, networking, operational, and observability requirements.
+
+For small and simple systems, direct communication may be easier to operate and may provide better performance.
+
+For larger distributed systems, Consul Connect can justify its additional resource and latency overhead by providing mTLS, encrypted communication, service identity, access control, service discovery, and traffic-management capabilities.
+
+The recommended approach is therefore to adopt a service mesh when the operational and security benefits outweigh the additional complexity and performance overhead.
